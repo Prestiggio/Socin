@@ -2,9 +2,7 @@
 
 namespace Ry\Socin\Providers;
 
-//use Illuminate\Support\ServiceProvider;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
 
 class RyServiceProvider extends ServiceProvider
 {
@@ -13,9 +11,9 @@ class RyServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Router $router)
+    public function boot()
     {
-    	parent::boot($router);
+    	parent::boot();
     	/*
     	$this->publishes([    			
     			__DIR__.'/../config/rysocin.php' => config_path('rysocin.php')
@@ -40,6 +38,8 @@ class RyServiceProvider extends ServiceProvider
     			__DIR__.'/../database/factories/' => database_path('factories'),
 	        	__DIR__.'/../database/migrations/' => database_path('migrations')
 	    ], 'migrations');
+    	
+    	$this->map();
     }
 
     /**
@@ -49,11 +49,14 @@ class RyServiceProvider extends ServiceProvider
      */
     public function register()
     {
+    	$this->app->singleton("rysocin", function($app){
+    		return $app;
+    	});
     }
-    public function map(Router $router)
-    {    	
+    public function map()
+    {
     	if (! $this->app->routesAreCached()) {
-    		$router->group(['namespace' => 'Ry\Socin\Http\Controllers'], function(){
+    		$this->app["router"]->group(['namespace' => 'Ry\Socin\Http\Controllers'], function(){
     			require __DIR__.'/../Http/routes.php';
     		});
     	}
