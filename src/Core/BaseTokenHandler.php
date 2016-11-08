@@ -21,7 +21,7 @@ class BaseTokenHandler
 	 * @param ConnectionInterface $connector
 	 */
 	public function getAccessToken($connector) {
-		return Session::get($connector::SESSIONKEY);
+		return Session::get($connector->SESSIONKEY);
 	}
 	
 	/**
@@ -33,7 +33,7 @@ class BaseTokenHandler
 	public function setAccessToken($accessToken, $connector) {
 		$this->connector = $connector;
 		
-		Session::put($connector::SESSIONKEY, $accessToken);
+		Session::put($connector->SESSIONKEY, $accessToken);
 			
 		$user = null;
 		

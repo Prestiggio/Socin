@@ -4,21 +4,22 @@ namespace Ry\Socin\Http\Controllers;
 use Session;
 use App\Http\Controllers\Controller;
 use Ry\Socin\Core\BaseConnector;
+use Illuminate\Filesystem\Filesystem;
 
 class SocialController extends Controller
 {
 	protected $theme = "md";
 	
-	const ID = "socauth";
+	protected $ID = "socauth";
 	
 	protected $con = BaseConnector::class;
 	
 	public function __construct() {
-		$this->middleware(static::ID);
+		$this->middleware($this->ID);
 	}
 	
 	public function getRefreshtoken() {
-		$connector = $con::instance(app(static::ID)->getHandler());
+		$connector = app($this->ID)->getConnector();
 		return ["access_token" => bcrypt($connector->getSession())];
 	}
 	
