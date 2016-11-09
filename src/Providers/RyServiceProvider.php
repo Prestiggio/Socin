@@ -66,11 +66,4 @@ class RyServiceProvider extends ServiceProvider
     		});
     	}*/
     }
-    
-    public function routes() {
-    	app("router")->get("/jostyle/chapapa", "\Ry\Fbform\Http\Controllers\JostyleController@getTest");
-    	app("router")->get("/jostyle/tab/edit", "\Ry\Fbform\Http\Controllers\JostyleController@getEdit");
-    	app("router")->get("/jostyle/{color}", "\Ry\Fbform\Http\Controllers\JostyleController@getColor")->where("color", "(thanks|submit|green|photos|preview)");
-    	app("router")->controller("/jostyle", "\Ry\Fbform\Http\Controllers\JostyleController");
-    }
 }

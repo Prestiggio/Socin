@@ -4,52 +4,67 @@ namespace Ry\Socin\Core;
 use Facebook\Facebook;
 use Ry\Socin\Http\Middleware\Socauth;
 use Ry\Socin\Core\BaseConnector;
+use Ry\Socin\Core\BaseTokenHandler;
+use Illuminate\Filesystem\Filesystem;
+use Facebook\Exceptions\FacebookResponseException;
+use Auth, Session;
 
 class BaseSocial
 {
-	protected $HANDLER = BaseTokenHandler::class;
-	protected $MIDDLEWARE = Socauth::class;
-	protected $CONNECTOR = BaseConnector::class;
-	public $ID = "rysocin";
-	
 	/**
 	 *
 	 * @var BaseTokenHandler
 	 */
-	protected $h;
+	public $id;
+	protected $handler;
+	protected $middleware;
+	protected $connector;
+	public $middlewarename;	
+	public $theme;
+	public $homeUrl;
 	
-	protected $c;
+	private $c;
 	
-	public $theme = "md";
-	
-	public function __construct($params) {
-		$h = $this->HANDLER;
-		$this->h = new $h();
-		$c = $this->CONNECTOR;
-		$this->c = new $c();
-		$this->h->register("facebook", function($handler)use($params){
+	public function __construct(
+			$id="rysocin", 
+			$theme="rymd", 
+			$homeUrl="social",
+			$params=["facebook" => ['app_id' => "701633913339293",
+    						'app_secret' => "e83f04bb3c85985e555d40c9b670de3c",
+    						'default_graph_version' => 'v2.8']],
+			$middleware=Socauth::class,
+			$connector=BaseConnector::class,
+			$handler=BaseTokenHandler::class) {
+		$this->id = $id;
+		$this->homeUrl = $homeUrl;
+		$this->theme = $theme;
+		$this->middlewarename = $id."auth";
+		$this->handler = new $handler($id);
+		$this->c = $connector;
+		$this->middleware = $middleware;
+		$this->handler->register("facebook", function($handler)use($params){
 			return new Facebook($params["facebook"]);
 		});
 	}
 	
 	public function setupMiddleware() {
-		app('router')->middleware($this->ID, $this->MIDDLEWARE);
+		app('router')->middleware($this->middlewarename, $this->middleware);
 	}
 	
-	/**
-	 *
-	 * @return \Ry\Fbform\Core\LaravelTokenHandler
-	 */
 	public function getHandler() {
-		return $this->h;
+		return $this->handler;
 	}
 	
 	public function getFacebook() {
-		return $this->h->app("facebook");
+		return $this->handler->app("facebook");
 	}
 	
 	public function getConnector() {
-		return $this->c;
+		if(!$this->connector) {
+			$connector = $this->c;
+			$this->connector = new $connector($this->id);
+		}
+		return $this->connector;
 	}
 	
 	public function handle($request, $next, $guard = null) {
@@ -73,7 +88,28 @@ class BaseSocial
 				return $response;
 	}
 	
-	protected function pre_handle($request, $next, $guard = null) {
+	protected function pre_handle($request, $next, $guard = null)
+	{
+		$connector = $this->getConnector();
 		
+		if (Auth::guard($guard)->guest() || !Session::get($connector->sessionKey())) {
+			$fbconnect = $connector->connect();
+
+			if(!$fbconnect || isset($fbconnect["error"]))
+				return view("$this->theme::login", ["redirect" => !is_null($fbconnect)]);
+		}
+
+		try {
+			if(!$this->handler->grantedAll())
+				return view("$this->theme::grant", ["permissions" => $this->handler->permissions->data]);
+		}
+		catch(FacebookResponseException $e) {
+			
+			if($e->getCode()==190) {
+				Session::flush();
+			}
+			
+			return view("$this->theme::login", ["redirect" => true]);
+		}
 	}
 }

@@ -7,19 +7,15 @@ use Ry\Socin\Core\BaseConnector;
 use Illuminate\Filesystem\Filesystem;
 
 class SocialController extends Controller
-{
-	protected $theme = "md";
-	
-	protected $ID = "socauth";
-	
-	protected $con = BaseConnector::class;
+{	
+	protected $id = "socin";
 	
 	public function __construct() {
-		$this->middleware($this->ID);
+		$this->middleware(app($this->id)->middlewarename);
 	}
 	
 	public function getRefreshtoken() {
-		$connector = app($this->ID)->getConnector();
+		$connector = app($this->id)->getConnector();
 		return ["access_token" => bcrypt($connector->getSession())];
 	}
 	
@@ -41,7 +37,8 @@ class SocialController extends Controller
 	
 	public function getColor($color)
 	{
-		return view("$this->theme::canvas.home", ['js' => json_encode([
+		$theme = app($this->id)->theme;
+		return view("$theme::canvas.home", ['js' => json_encode([
 				"modules" => ["ngMaterial", "ngRySocial"],
 				"ngRoutes" => [
 						"default" => "/jostyle",
@@ -55,6 +52,7 @@ class SocialController extends Controller
 	}
 	
 	public function getLogin() {
-		return view("$this->theme::login", ["redirect" => false]);
+		$theme = app($this->id)->theme;
+		return view("$theme::login", ["redirect" => false]);
 	}
 }
