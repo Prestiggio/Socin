@@ -44,16 +44,21 @@ class SocialController extends Controller
 	public function getColor($color)
 	{
 		$theme = app($this->id)->theme;
-		$baseUrl = app($this->id)->homeUrl;
+		$routes = app($this->id)->routes;
+		$baseUrl = $routes["base"];
+		$ngRoutes = [
+				"default" => $baseUrl,
+				$baseUrl => "$baseUrl/app"
+		];
+		foreach ($routes["ajax"] as $route) {
+			$ngRoutes["$baseUrl/$route"] = "$baseUrl/app$route";
+		}
 		return view("$theme::canvas.home", ['js' => json_encode([
 				"appId" => app($this->id)->getFacebook()->getApp()->getId(),
 				"lang" => "",
 				"region" => LaravelLocalization::getCurrentLocaleRegional(),
 				"modules" => ["ngMaterial", "ngRySocial"],
-				"ngRoutes" => [
-						"default" => $baseUrl,
-						$baseUrl => "$baseUrl/app"
-				],
+				"ngRoutes" => $ngRoutes,
 				"scope" => ["email"],
 				"refreshTokenUrl" => "$baseUrl/refreshtoken",
 				"flushUrl" => "$baseUrl/haslogout",

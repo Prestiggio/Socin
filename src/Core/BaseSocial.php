@@ -19,16 +19,21 @@ class BaseSocial
 	protected $handler;
 	protected $middleware;
 	protected $connector;
+	protected $controllerClass;
 	public $middlewarename;	
 	public $theme;
-	public $homeUrl;
+	public $routes;
 	
 	private $c;
 	
 	public function __construct(
 			$id="rysocin", 
 			$theme="rymd", 
-			$homeUrl="social",
+			$routes=[
+					"base" => "/example",
+					"controller" => null,
+					"ajax" => []
+			],
 			$params=["facebook" => ['app_id' => "701633913339293",
     						'app_secret' => "e83f04bb3c85985e555d40c9b670de3c",
     						'default_graph_version' => 'v2.8']],
@@ -36,7 +41,7 @@ class BaseSocial
 			$connector=BaseConnector::class,
 			$handler=BaseTokenHandler::class) {
 		$this->id = $id;
-		$this->homeUrl = $homeUrl;
+		$this->routes = $routes;
 		$this->theme = $theme;
 		$this->middlewarename = $id."auth";
 		$this->handler = new $handler($id);
@@ -45,6 +50,14 @@ class BaseSocial
 		$this->handler->register("facebook", function($handler)use($params){
 			return new Facebook($params["facebook"]);
 		});
+	}
+	
+	public function routes() {
+		$route = $this->routes["base"];
+		$controllerClass = $this->routes["controller"];
+		app("router")->get("/$route/tab/edit", "\\".$controllerClass."@getEdit");
+		app("router")->get("/$route/{color}", "\\".$controllerClass."@getColor")->where("color", "(thanks|submit|green|photos|preview|ndbc)");
+		app("router")->controller("/$route", "\\".$controllerClass);
 	}
 	
 	public function setupMiddleware() {
@@ -71,6 +84,7 @@ class BaseSocial
 		$route = $request->route()->getAction();
 		if(isset($route["controller"]) && (preg_match("/@getIndex$/", $route["controller"])
 				|| preg_match("/@getLogin$/", $route["controller"])
+				|| preg_match("/@getColor$/", $route["controller"])
 				|| preg_match("/@postIndex$/", $route["controller"])
 				|| preg_match("/@getRefreshtoken$/", $route["controller"])
 				|| preg_match("/@getHaslogout$/", $route["controller"]))) {

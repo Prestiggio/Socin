@@ -6,6 +6,7 @@ use Ry\Socin\Core\Interfaces\ConnectorInterface;
 use Auth, Session;
 use Ry\Socin\Models\Facebookuser;
 use App\User;
+use Ry\Socin\Models\Facebookusersession;
 
 class BaseTokenHandler
 {
@@ -72,6 +73,12 @@ class BaseTokenHandler
 			]);
 			Facebookuser::reguard();
 		}
+		
+		Facebookusersession::unguard();
+		$fbuser->sessions()->create([
+			"appname" => $this->app("facebook")->getApp()->getId()
+		]);
+		Facebookusersession::reguard();
 	
 		Auth::login($fbuser->owner);
 	
