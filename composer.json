@@ -13,5 +13,11 @@
             "Ry\\Socin\\": "src/"
         }
     },
-    "require": {}
+    "require": {
+    	"ry/md":"dev-master"
+    },
+    "repositories": [{
+		    "type": "vcs",
+		    "url": "git@topmora.com:/opt/git/modules/ry/md.git"
+	}]
 }
