@@ -51,6 +51,7 @@ class RyServiceProvider extends ServiceProvider
      */
     public function register()
     {
+    	$this->app->register(\Ry\Md\Providers\RyServiceProvider::class);
     	$this->app->singleton("rysocin", function($app){
     		return $app;
     	});
