@@ -68,6 +68,9 @@ class BaseSocial
 		return $this->handler;
 	}
 	
+	/**
+	 * @return \Facebook\Facebook
+	 */
 	public function getFacebook() {
 		return $this->handler->app("facebook");
 	}

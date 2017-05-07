@@ -5,6 +5,7 @@ namespace Ry\Socin\Providers;
 use Illuminate\Support\ServiceProvider;
 use Ry\Socin\App;
 use Illuminate\Routing\Router;
+use Ry\Socin\Console\Commands\Colonize;
 
 class RyServiceProvider extends ServiceProvider
 {
@@ -58,6 +59,10 @@ class RyServiceProvider extends ServiceProvider
     	$this->app->singleton("rysocial", function($app){
     		return new App();
     	});
+    	$this->app->singleton("rysocin.newapp", function($app){
+    		return new Colonize();
+    	});
+    	$this->commands(["rysocin.newapp"]);
     }
     public function map()
     {

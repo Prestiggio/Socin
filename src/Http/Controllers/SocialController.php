@@ -6,13 +6,19 @@ use App\Http\Controllers\Controller;
 use Ry\Socin\Core\BaseConnector;
 use Illuminate\Filesystem\Filesystem;
 use LaravelLocalization;
+use Illuminate\Support\Facades\View;
 
 class SocialController extends Controller
 {	
+	//must ocverride it
 	protected $id = "socin";
 	
 	public function __construct() {
 		$this->middleware(app($this->id)->middlewarename);
+		
+		View::share("facebook", [
+				"appId" => app($this->id)->getFacebook()->getApp()->getId()
+		]);
 	}
 	
 	public function getRefreshtoken() {
@@ -53,7 +59,7 @@ class SocialController extends Controller
 		foreach ($routes["ajax"] as $route) {
 			$ngRoutes["$baseUrl/$route"] = "$baseUrl/app$route";
 		}
-		return view("$theme::canvas.home", ['js' => json_encode([
+		return view("$theme::socin.canvas", ['js' => json_encode([
 				"appId" => app($this->id)->getFacebook()->getApp()->getId(),
 				"lang" => "",
 				"region" => LaravelLocalization::getCurrentLocaleRegional(),

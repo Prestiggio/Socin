@@ -1,0 +1,6 @@
+[
+	"../../../public/vendor/rymd/js/script.min.js",
+	"src/assets/ngRyRoute.js",
+	"src/assets/ngRySocial.js",
+	"src/assets/ngRySocin.js"
+]
