@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Ry\Socin\App;
 use Illuminate\Routing\Router;
 use Ry\Socin\Console\Commands\Colonize;
+use Ry\Socin\Console\Commands\Fbparseall;
 
 class RyServiceProvider extends ServiceProvider
 {
@@ -62,7 +63,10 @@ class RyServiceProvider extends ServiceProvider
     	$this->app->singleton("rysocin.newapp", function($app){
     		return new Colonize();
     	});
-    	$this->commands(["rysocin.newapp"]);
+    	$this->app->singleton("rysocin.fbparse", function($app){
+    		return new Fbparseall();
+    	});
+    	$this->commands(["rysocin.newapp", "rysocin.fbparse"]);
     }
     public function map()
     {

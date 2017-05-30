@@ -83,9 +83,6 @@ String.prototype.toCamelCase = function () {
     		if(fblogin.status==='connected') {
     			$(document).trigger("ryfb:refresh", [fblogin]);
     		}
-    		else if(fblogin.status === 'not_authorized') {
-    			$(document).trigger("ryfb:out", [fblogin]);
-    		}
     		else {
     			$(document).trigger("ryfb:out", [fblogin]);
     		}
@@ -350,7 +347,10 @@ String.prototype.toCamelCase = function () {
         				RyFacebook.authStatusChangedDispatching = false;
         				$(btns).each(function(){
         					$(this).prop("disabled", false);
-            				$(this).html("logout");
+        					var logoutLabel = $(this).data("logout");
+        					if(!logoutLabel)
+        						logoutLabel = "logout";
+            				$(this).html(logoutLabel);
             				$(this).off("click", clickLogin);
             				$(this).off("click", clickLogout);
             				$(this).on("click", clickLogout);
@@ -375,10 +375,10 @@ String.prototype.toCamelCase = function () {
         		});
         		
         		RyFacebook.authStatusChangedDispatching = false;
-        		$(document).off("ryfb:refresh");
-        		$(document).on("ryfb:refresh", refreshAction);
-        		$(document).off("ryfb:out");
-        		$(document).on("ryfb:out", outAction);
+        		$(document).off("ryfb:refresh.core");
+        		$(document).on("ryfb:refresh.core", refreshAction);
+        		$(document).off("ryfb:out.core");
+        		$(document).on("ryfb:out.core", outAction);
             	facebook.then(RyFacebook.ready);
             }
     	}

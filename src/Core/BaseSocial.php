@@ -84,49 +84,31 @@ class BaseSocial
 	}
 	
 	public function handle($request, $next, $guard = null) {
-		$route = $request->route()->getAction();
-		if(isset($route["controller"]) && (preg_match("/@getIndex$/", $route["controller"])
-				|| preg_match("/@getLogin$/", $route["controller"])
-				|| preg_match("/@getColor$/", $route["controller"])
-				|| preg_match("/@postIndex$/", $route["controller"])
-				|| preg_match("/@getRefreshtoken$/", $route["controller"])
-				|| preg_match("/@getHaslogout$/", $route["controller"]))) {
-	
-				}
-				else {
-					$ph = $this->pre_handle($request, $next, $guard);
-					if($ph)
-						return $ph;
-				}
-	
-				$response = $next($request);
-				/*$content = $response->getContent();
-				 $response->setContent($content);*/
-				return $response;
-	}
-	
-	protected function pre_handle($request, $next, $guard = null)
-	{
 		$connector = $this->getConnector();
 		
 		if (Auth::guard($guard)->guest() || !Session::get($connector->sessionKey())) {
 			$fbconnect = $connector->connect();
-
+		
 			if(!$fbconnect || isset($fbconnect["error"]))
 				return view("$this->theme::login", ["redirect" => !is_null($fbconnect)]);
 		}
-
+		
 		try {
 			if(!$this->handler->grantedAll())
 				return view("$this->theme::grant", ["permissions" => $this->handler->permissions->data]);
 		}
 		catch(FacebookResponseException $e) {
-			
+				
 			if($e->getCode()==190) {
 				Session::flush();
 			}
-			
+				
 			return view("$this->theme::login", ["redirect" => true]);
 		}
+	
+		$response = $next($request);
+		/*$content = $response->getContent();
+		$response->setContent($content);*/
+		return $response;
 	}
 }

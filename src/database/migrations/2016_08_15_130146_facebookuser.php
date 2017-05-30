@@ -12,7 +12,7 @@ class Facebookuser extends Migration
      */
     public function up()
     {
-        Schema::create('facebookusers', function (Blueprint $table) {
+        Schema::create('ry_socin_facebookusers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer("user_id", false, true)->nullable();
             $table->char("fbid")->nullable();
@@ -32,6 +32,6 @@ class Facebookuser extends Migration
      */
     public function down()
     {
-        Schema::drop('facebookusers');
+        Schema::drop('ry_socin_facebookusers');
     }
 }

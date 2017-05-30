@@ -12,7 +12,7 @@ class Facebookusersession extends Migration
      */
     public function up()
     {
-        Schema::create('facebookusersessions', function (Blueprint $table) {
+        Schema::create('ry_socin_facebookusersessions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer("facebookuser_id", false, true);
             $table->char("appname");
@@ -27,6 +27,6 @@ class Facebookusersession extends Migration
      */
     public function down()
     {
-        Schema::drop('facebookusersessions');
+        Schema::drop('ry_socin_facebookusersessions');
     }
 }
