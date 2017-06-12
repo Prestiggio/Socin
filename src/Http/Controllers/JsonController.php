@@ -16,6 +16,118 @@ use Ry\Socin\Exceptions\BotFormatException;
 
 class JsonController extends Controller
 {		
+	public function getApprove() {
+		$fb = new Facebook(app("gallery")->params["facebook"]);
+		$page = Facebookpage::where("name", "=", "mg.kipa")->first();
+		$fb->setDefaultAccessToken($page->access_token);
+		
+		$psid = "1227870457336347";
+		
+		$actions = [
+				[
+						"request" => [
+								"text" => "Hi Linda!"
+						]
+				],
+				[
+				"request" =>  [
+								"attachment" => [
+										"type" => "template",
+										"payload" => [
+												"template_type" => "generic",
+												"elements" => [[
+														"title" => "Ville Doumer - unknown location",
+														"subtitle" => "Please update the location of your product",
+														"image_url" => url("medias/img/gallery/gallery-1.jpg"),
+														"buttons" => [ //3 ian an
+																[
+																		"type"=> "web_url",
+																		"url"=> action("\Ry\RealEstate\Http\Controllers\PublicController@getIndex") . "?psid=" . $psid,
+																		"title" => "Search on the site",
+																		"webview_height_ratio" => "compact" //full, compact, tall
+																],
+																[
+																		"type"=> "postback",
+																		"title" => "Product expired",
+																		"payload" => json_encode(["lasa" => "iny"]) //full, compact, tall
+																],
+																[
+																		"type" => "element_share"
+																]
+														]
+												]]
+										]
+								],
+								"quick_replies" => [
+									[
+										"content_type" => "location"
+									]
+								]
+						],
+						"handler" => "Ry\Socin\Http\Controllers\JsonController@putGeo"
+				],
+				[
+				"request" => [
+						"text" => "Thank you !"
+						]
+				],
+		];
+		
+		
+		
+		foreach($actions as $action) {
+			$bot = Bot::where("psid", "=", $psid)->first();
+			
+			$botrequest = $bot->requests()->create([
+					"payload" => json_encode($action["request"]),
+					"handler" => isset($action["handler"]) ? $action["handler"] : null
+			]);
+			
+			if(!$bot->currentrequest){
+				$arrequest = json_decode($botrequest->payload, true);
+				$fbrequest = $fb->request('POST', '/me/messages', [
+						"sender_action"=>"typing_on",
+						"recipient" => '{"id":"'.$bot->psid.'"}'
+				]);
+				$fb->getClient()->sendRequest($fbrequest);
+				if(isset($arrequest["filedata"])) {
+					$file = $arrequest["filedata"];
+					unset($arrequest["filedata"]);
+					$fbrequest = $fb->request('POST', '/me/messages', [
+							//"message" => '{"attachment":{"type":"audio", "payload":{}}}',
+							"message" => json_encode($arrequest),
+							"filedata" => $fb->fileToUpload($file),
+							"recipient" => '{"id":"'.$bot->psid.'"}'
+					]);
+				}
+				else {
+					$fbrequest = $fb->request('POST', '/me/messages', [
+							"message" => $arrequest,
+							"recipient" => [
+									"id" => $bot->psid
+							]
+					]);
+				}
+				$fb->getClient()->sendRequest($fbrequest);
+			
+				if($botrequest->handler!=null) {
+					$bot->botrequest_id = $botrequest->id;
+				}
+				else {
+					$bot->botrequest_id = null;
+					$botrequest->delete();
+				}
+				$bot->save();
+			}
+		}
+		
+		return ["status" => "starting"];
+	}
+	
+	public function putGeo($bot, $message) {
+		Log::info(print_r($message, true));
+	}
+	
 	public function getBot(Request $request) {
 		$ar = $request->all();
 		Log::info(print_r($ar, true));
@@ -164,6 +276,9 @@ class JsonController extends Controller
 									}
 								}
 								else {
+									$bot->botrequest_id = null;
+									$bot->save();
+									
 									//next request
 									if($bot->requests()->exists()) {
 										$botrequest = $bot->requests()->first();
