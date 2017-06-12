@@ -4,6 +4,7 @@ namespace Ry\Socin\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Ry\Socin\App;
+use Ry\Socin\Botengine;
 use Illuminate\Routing\Router;
 use Ry\Socin\Console\Commands\Colonize;
 use Ry\Socin\Console\Commands\Fbparseall;
@@ -43,6 +44,9 @@ class RyServiceProvider extends ServiceProvider
 	        	__DIR__.'/../database/migrations/' => database_path('migrations')
 	    ], 'migrations');
     	
+    	$loader = \Illuminate\Foundation\AliasLoader::getInstance();
+    	$loader->alias('BotRoute', BotRoute::class);
+    	
     	$this->map();
     }
 
@@ -66,14 +70,17 @@ class RyServiceProvider extends ServiceProvider
     	$this->app->singleton("rysocin.fbparse", function($app){
     		return new Fbparseall();
     	});
+    	$this->app->singleton("rysocin.bot", function($app){
+    		return new Botengine();
+    	});
     	$this->commands(["rysocin.newapp", "rysocin.fbparse"]);
     }
     public function map()
     {
-    	/*if (! $this->app->routesAreCached()) {
+    	if (! $this->app->routesAreCached()) {
     		$this->app["router"]->group(['namespace' => 'Ry\Socin\Http\Controllers'], function(){
     			require __DIR__.'/../Http/routes.php';
     		});
-    	}*/
+    	}
     }
 }

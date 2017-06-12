@@ -23,6 +23,7 @@ class BaseSocial
 	public $middlewarename;	
 	public $theme;
 	public $routes;
+	public $params;
 	
 	private $c;
 	
@@ -47,6 +48,7 @@ class BaseSocial
 		$this->handler = new $handler($id);
 		$this->c = $connector;
 		$this->middleware = $middleware;
+		$this->params = $params;
 		$this->handler->register("facebook", function($handler)use($params){
 			return new Facebook($params["facebook"]);
 		});

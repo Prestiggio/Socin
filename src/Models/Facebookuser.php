@@ -14,4 +14,8 @@ class Facebookuser extends Model{
 	public function sessions() {
 		return $this->hasMany("Ry\Socin\Models\Facebookusersession", "facebookuser_id");
 	}
+	
+	public function bots() {
+		return $this->hasMany("Ry\Socin\Models\Bot", "facebookuser_id");
+	}
 }
