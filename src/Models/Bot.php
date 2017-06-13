@@ -28,4 +28,8 @@ class Bot extends Model{
 	public function forms() {
 		return $this->hasMany("Ry\Socin\Models\BotForm", "bot_id");
 	}
+	
+	public function referrals() {
+		return $this->hasMany("Ry\Socin\Models\Referral", "bot_id");
+	}
 }

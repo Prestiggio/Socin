@@ -321,7 +321,13 @@ class JsonController extends Controller
 							}		
 											
 							if(isset($message["postback"]["referral"]["ref"])) { //tsy voatery
-								$fbid = $message["postback"]["referral"]["ref"];
+								$referral = $message["postback"]["referral"]["ref"];
+								
+								$bot->referrals()->create([
+										"referral" => $referral
+								]);
+								
+								$fbid = $referral;
 								$nodes = Facebooknode::where("fbid", "=", $fbid);
 								if($nodes->exists()) {
 									$node = $nodes->first();
