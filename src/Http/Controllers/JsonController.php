@@ -21,7 +21,7 @@ class JsonController extends Controller
 		$page = Facebookpage::where("name", "=", "mg.kipa")->first();
 		$fb->setDefaultAccessToken($page->access_token);
 		
-		$psid = "1227870457336347";
+		$psid = "1354565564664305";
 		
 		$actions = [
 				[
@@ -73,11 +73,9 @@ class JsonController extends Controller
 				],
 		];
 		
-		
+		$bot = Bot::where("psid", "=", $psid)->first();		
 		
 		foreach($actions as $action) {
-			$bot = Bot::where("psid", "=", $psid)->first();
-			
 			$botrequest = $bot->requests()->create([
 					"payload" => json_encode($action["request"]),
 					"handler" => isset($action["handler"]) ? $action["handler"] : null
@@ -118,6 +116,7 @@ class JsonController extends Controller
 					$botrequest->delete();
 				}
 				$bot->save();
+				$bot->load("currentrequest");
 			}
 		}
 		
