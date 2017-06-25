@@ -15,8 +15,12 @@ class SocinBotforms extends Migration
         Schema::create('ry_socin_botforms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer("bot_id", false, true);
-            $table->char("name");
-            $table->text("form");
+            $table->text("action");
+            $table->text("form"); //the message payload shown as list in index
+            $table->boolean("is_indexed")->default(true);
+            $table->boolean("is_full")->default(false);
+            $table->text("value")->nullable();
+            $table->text("submitted")->nullable();
             $table->timestamps();
         });
     }

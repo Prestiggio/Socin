@@ -8,6 +8,7 @@ use Ry\Socin\Botengine;
 use Illuminate\Routing\Router;
 use Ry\Socin\Console\Commands\Colonize;
 use Ry\Socin\Console\Commands\Fbparseall;
+use Ry\Socin\Http\Middleware\BotPsidRegister;
 
 class RyServiceProvider extends ServiceProvider
 {
@@ -48,6 +49,9 @@ class RyServiceProvider extends ServiceProvider
     	$loader->alias('BotRoute', BotRoute::class);
     	
     	$this->map();
+    	
+    	$this->app["router"]->middleware('bot', 'Ry\Socin\Http\Middleware\BotPsidRegister');
+    	$this->app["router"]->middleware('botex', 'Ry\Socin\Http\Middleware\BotExpected');
     }
 
     /**
@@ -77,6 +81,7 @@ class RyServiceProvider extends ServiceProvider
     }
     public function map()
     {
+    	$this->app['router']->model('form', "\Ry\Socin\Models\BotForm");
     	if (! $this->app->routesAreCached()) {
     		$this->app["router"]->group(['namespace' => 'Ry\Socin\Http\Controllers'], function(){
     			require __DIR__.'/../Http/routes.php';

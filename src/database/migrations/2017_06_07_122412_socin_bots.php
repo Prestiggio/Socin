@@ -17,6 +17,12 @@ class SocinBots extends Migration
             $table->integer("page_id", false, true);
             $table->integer("facebookuser_id", false, true);
             $table->char("psid", 50);
+            $table->char("first_name", 50)->nullable();
+            $table->char("last_name", 50)->nullable();
+            $table->text("profile_pic")->nullable();
+            $table->char("locale", 7)->nullable();
+            $table->integer("timezone")->nullable();
+            $table->char("gender", 10)->nullable();
             $table->timestamps();
         });
     }
