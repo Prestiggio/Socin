@@ -14,8 +14,8 @@ class SocinBots extends Migration
     {
         Schema::create('ry_socin_bots', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("page_id", false, true);
-            $table->integer("facebookuser_id", false, true);
+            $table->integer("page_id", false, true)->nullable();
+            $table->integer("facebookuser_id", false, true)->nullable();
             $table->char("psid", 50);
             $table->char("first_name", 50)->nullable();
             $table->char("last_name", 50)->nullable();
