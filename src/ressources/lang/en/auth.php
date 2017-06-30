@@ -1,16 +1,16 @@
 <?php
 return [
-		"email" => "email",
-		"password" => "mot de passe",
-		"login" => "se connecter",
-		"remember" => "se souvenir de moi",
-		"forgotten" => "mot de passe oublié",
+		"email" => "Email",
+		"password" => "Password",
+		"login" => "Log in",
+		"remember" => "Remember me",
+		"forgotten" => "Forgotten password",
 		"facebook" => "facebook",
 		"twitter" => "twitter",
 		"whatsapp" => "whatsapp",
 		"yahoo" => "yahoo",
 		"google" => "google",
 		"skype" => "skype",
-		"not_yet" => "pas encore membre ?",
-		"logout" => "se déconnecter"
+		"not_yet" => "Not yet subscribed ?",
+		"logout" => "Log out"
 ];
