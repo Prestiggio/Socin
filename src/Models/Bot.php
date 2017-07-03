@@ -2,6 +2,9 @@
 namespace Ry\Socin\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Ry\Socin\Http\Controllers\JsonController;
+use Illuminate\Support\Facades\Log;
+use Ry\Socin\Bot\Form;
 
 class Bot extends Model{		
 	
@@ -9,7 +12,7 @@ class Bot extends Model{
 	
 	protected $fillable = ["psid", "first_name", "last_name", "profile_pic", "locale", "timezone", "gender"];
 	
-	private static $bot, $field;
+	private static $bot;
 	
 	public function page() {
 		return $this->belongsTo("Ry\Socin\Models\Facebookpage", "page_id");
@@ -19,12 +22,8 @@ class Bot extends Model{
 		return $this->belongsToMany("\Ry\Socin\Models\Facebooknode", "ry_socin_facebooknode_bots", "bot_id", "facebooknode_id");
 	}
 	
-	public function requests() {
-		return $this->hasMany("Ry\Socin\Models\BotRequest", "bot_id");
-	}
-	
-	public function currentrequest() {
-		return $this->belongsTo("Ry\Socin\Models\BotRequest", "botrequest_id");
+	public function field() {
+		return $this->belongsTo("Ry\Socin\Models\BotFormField", "lock_field_id");
 	}
 	
 	public function forms() {
@@ -39,26 +38,83 @@ class Bot extends Model{
 		self::$bot = $bot;
 	}
 	
-	public static function focus($field) {
-		self::$field = $field;
-	}
-	
 	public static function current() {
 		return self::$bot;
 	}
 	
-	public static function currentField() {
-		return self::$field;
+	public function unlock() {
+		$this->lock_field_id = null;
+		$this->save();
 	}
 	
-	public static function gotField($value, &$form) {
-		self::$field->value = json_encode([
+	public function lock($field) {
+		$this->lock_field_id = $field->id;
+		$this->save();
+	}
+	
+	private function getAction($message) {
+		if(isset($message["postback"]["payload"])) {
+			try {
+				return json_decode($message["postback"]["payload"], true);
+			}
+			catch(\Exception $e) {
+				Log::error($e);
+				return [
+						"action" => $message["postback"]["payload"]
+				];
+			}
+		}
+		elseif(isset($message["message"]["quick_reply"]["payload"])) {
+			try {
+				return json_decode($message["message"]["quick_reply"]["payload"], true);
+			}
+			catch(\Exception $e) {
+				Log::error($e);
+				return [
+						"action" => $message["message"]["quick_reply"]["payload"]
+				];
+			}
+		}
+	}
+	
+	public function next($message) {
+		Log::info($message);
+		if($this->field) {
+			return array_merge($this->field->handle($message, []), $this->field->form->output());
+		}
+		else {
+			try {
+				$payload = $this->getAction($message);
+				list($controller, $action) = explode("@", $payload["action"]);
+				return app($controller)->$action($message, $payload);
+			}
+			catch(\Exception $e) {
+				Log::error($e);
+				return $this->index($message);
+			}
+			return $this->index($message);
+		}
+	}
+	
+	private function index($message) {
+		$form = $this->forms()->where("name", "=", "index")->first();
+		if(!$form) {
+			$f = new Form("Accueil", null, true, "index");
+			$f->select("Que veux-tu faire " . self::$bot->first_name . "?", [
+					"Retour au menu" => JsonController::class . "@listForms"
+			]);
+			$form = $f->getForm();
+		}
+		return $form->output();
+	}
+	
+	public static function gotField($value) {
+		self::$bot->field->value = json_encode([
 				"json" => $value
 		]);
-		self::$field->save();
-		$form->expect("");
-		$form->append(app("Ry\Socin\Http\Controllers\JsonController")->continueForm(self::$field->form));
-		return $form;
+		self::$bot->field->save();
+		self::$bot->unlock();
+		return self::$bot->next();
 	}
 	
 	public static function send($to, $form) {

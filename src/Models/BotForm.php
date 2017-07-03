@@ -3,6 +3,7 @@ namespace Ry\Socin\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Faker\Generator as Faker;
+use Illuminate\Support\Facades\Log;
 
 class BotForm extends Model
 {
@@ -21,6 +22,11 @@ class BotForm extends Model
 	public function getNameAttribute() {
 		$j = json_decode($this->form, true);
 		return $this->owner->first_name . " à bien rempli notre formulaire " . $j["title"];
+	}
+	
+	public function getFirstFieldAttribute() {
+		foreach($this->fields as $field)
+			return  $field;
 	}
 	
 	public function getDescriptionAttribute() {
@@ -74,6 +80,57 @@ class BotForm extends Model
 			$j["image"] = $faker->imageUrl();
 		}
 		return $j["image"];
+	}
+	
+	public function output() {
+		$ar = [];
+		$outputs = [];
+		$values = [];
+		foreach($this->fields as $field) {
+			if($field->server_output=="" && strlen($field->value)>0) {
+				$outputs[] = $field;
+			}
+			else {
+				$server_output = json_decode($field->server_output, true);
+				if(!isset($server_output["expect"])) {
+					$outputs[] = $field;
+				}
+				else {
+					if($field->user_input!="" && $field->value!="") {
+						$outputs = [];
+						$value = json_decode($field->value, true);
+						$values = array_merge_recursive($values, $value["json"]);
+					}
+					else {
+						foreach ($outputs as $output) {
+							$ar[] = json_decode($output->server_output, true);
+						}
+						Log::info($field);
+						Bot::current()->lock($field);
+						return $ar;
+					}
+				}
+			}
+		}
+			
+		foreach ($outputs as $output) {
+			$ar[] = json_decode($output->server_output, true);
+		}
+			
+		$this->value = json_encode($values);
+		list($controller, $action) = explode("@", $this->action);
+		$ret = app($controller)->$action($this->value);
+		$this->submitted = json_encode($ret);
+		$this->is_full = true;
+		$this->save();
+			
+		if($this->parent) {
+			$this->parent->value = $this->value;
+			$this->parent->save();
+			return array_merge($ar, $this->parent->form->output());
+		}
+			
+		return $ar;
 	}
 }
 ?>

@@ -68,52 +68,6 @@ class JsonController extends Controller
 		return $form;
 	}
 	
-	public function continueForm(BotForm $f) {
-		$form = new Form(null, $f);
-		Log::info("mba voantso ve ty " . $f->id);
-		$outputs = [];
-		$startOutput = true;
-		$values = [];
-		foreach ($f->fields as $field) {
-			if($field->server_output=="" && strlen($field->value)>0) {
-				$outputs[] = $field;
-			}
-			else {
-				$server_output = json_decode($field->server_output, true);
-				if(!isset($server_output["expect"])) {
-					$outputs[] = $field;
-				}
-				else {
-					if($field->user_input!="" && $field->value!="") {
-						$outputs = [];
-						$value = json_decode($field->value, true);
-						$values = array_merge_recursive($values, $value["json"]);
-					}
-					else {
-						foreach ($outputs as $output) {
-							$form->append(json_decode($output->server_output, true));
-						}
-						$form->append(json_decode($field->server_output, true));
-						return $form;
-					}
-				}	
-			}
-		}
-		
-		foreach ($outputs as $output) {
-			$form->append(json_decode($output->server_output, true));
-		}
-		
-		$f->value = json_encode($values);		
-		list($controller, $action) = explode("@", $f->action);
-		$ret = app($controller)->$action($f->value);
-		$f->submitted = json_encode($ret);
-		$f->is_full = true;
-		$f->save();
-		
-		return $form;
-	}
-	
 	public function listForms() {
 		$bot = Bot::current();
 		$buttons = [];
@@ -241,14 +195,13 @@ class JsonController extends Controller
 		return $form;
 	}
 	
-	public function postPayload(Request $request) {
-		$model = $request->get("model");
+	public function postPayload($payload) {
+		$model = $payload["model"];
 		$keys = explode(".", $model);
 		$key = array_pop($keys);
 		$model = implode(".", $keys);
-		$arrequest = $request->all();
-		$value = $request->get("value");
-		$form = new Form(null, Bot::currentField()->form);
+		$value = $payload["value"];
+		$form = new Form(null, Bot::current()->field->form);
 		Bot::gotField(Form::dot2ar($model, function(&$ar) use ($key, $value){
 			$ar[$key] = $value;
 		}), $form);

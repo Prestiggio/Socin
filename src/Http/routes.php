@@ -1,5 +1,5 @@
 <?php
-Route::group(["middleware" => ["bot", "botex"]], function(){
+Route::group(["middleware" => "bot"], function(){
 	Route::get("ry/socin/forms", "JsonController@listForms");
 	Route::post("ry/socin/form/{form}/cancel", "JsonController@cancel");
 	Route::post("ry/socin/form/{form}/result", "JsonController@result");

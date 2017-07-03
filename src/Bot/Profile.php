@@ -4,6 +4,7 @@ namespace Ry\Socin\Bot;
 use LaravelLocalization, Lang, App;
 use Ry\Socin\Bot\Menu;
 use Illuminate\Http\Request;
+use Ry\Socin\Http\JsonController;
 
 class Profile
 {
@@ -14,8 +15,14 @@ class Profile
 	
 	public function __construct($start_payload = null, $taponly = false) {
 		$this->taponly = $taponly;
-		if(!isset($start_payload))
-			$start_payload = action("\Ry\Socin\Http\Controllers\JsonController@postStart");
+		if(!isset($start_payload)) {
+			$start_payload = json_encode([
+					"action" => JsonController::class . "@postStart"
+			]);
+		}
+		elseif(is_array($start_payload)) {
+			$start_payload = json_encode($start_payload);
+		}
 		$this->start_payload = $start_payload;
 	}
 	

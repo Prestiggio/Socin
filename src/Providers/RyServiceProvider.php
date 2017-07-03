@@ -51,7 +51,6 @@ class RyServiceProvider extends ServiceProvider
     	$this->map();
     	
     	$this->app["router"]->middleware('bot', 'Ry\Socin\Http\Middleware\BotPsidRegister');
-    	$this->app["router"]->middleware('botex', 'Ry\Socin\Http\Middleware\BotExpected');
     }
 
     /**

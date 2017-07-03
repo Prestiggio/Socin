@@ -4,6 +4,7 @@ namespace Ry\Socin\Bot;
 use LaravelLocalization, Lang, App;
 
 use Ry\Socin\Models\Bot;
+use Ry\Socin\Http\Controllers\JsonController;
 
 class Form
 {
@@ -11,15 +12,16 @@ class Form
 	private $bot, $form;
 	private $re = false;
 	
-	public function __construct($menu_title=null, $form=null, $save=true) {		
+	public function __construct($menu_title=null, $form=null, $save=true, $name=null) {		
 		$this->bot = Bot::current();
 		if($save) {
 			if(!is_string($save))
-				$save = "Ry\Socin\Http\Controllers\JsonController@send";
+				$save = JsonController::class . "@send";
 			
 			if(!isset($form)) {
 				$this->form = $this->bot->forms()->create([
 						"is_indexed" => isset($menu_title),
+						"name" => $name,
 						"action" => $save
 				]);
 				if(!isset($menu_title))
@@ -27,7 +29,10 @@ class Form
 				$this->form->form = json_encode([
 						"type"=> "postback",
 						"title" => $menu_title,
-						"payload" => action("\Ry\Socin\Http\Controllers\JsonController@form", ["form" => $this->form])
+						"payload" => json_encode([
+								"action" => JsonController::class . "@form",
+								"id" => $this->form->id
+						])
 				]);
 				$this->form->save();
 			}
@@ -41,6 +46,10 @@ class Form
 		}
 	}
 	
+	public function getForm() {
+		return $this->form;
+	}
+	
 	private function save(&$field) {
 		if(!$this->re) {
 			if(isset($field["expect"]) && $field["expect"]=="")
@@ -51,7 +60,7 @@ class Form
 			]);
 			
 			if(isset($field["expect"]) && $field["expect"]!="") {
-				$field["expect"] = $field["expect"] . (preg_match("/\?/i", $field["expect"]) ? "&" : "?") . "field_id=" . $f->id;
+				//$field["expect"] = $field["expect"] . (preg_match("/\?/i", $field["expect"]) ? "&" : "?") . "field_id=" . $f->id;
 				$f->server_output = json_encode($field);
 				$f->save();
 			}
@@ -118,9 +127,10 @@ class Form
 		$this->fields[] = $field;
 	}
 	
-	public function expect($payload) {
+	public function expect($action, $model) {
 		$field = [
-				"expect" => $payload
+				"expect" => $action,
+				"model" => $model
 		];
 		$this->save($field);
 		$this->fields[] = $field;
@@ -187,8 +197,14 @@ class Form
 	}
 	
 	public function link($invitationMessage, $payload=null) {
-		if(!isset($payload))
-			$payload = action("\Ry\Socin\Http\Controllers\JsonController@getLinking") . "?psid=" . $this->bot->psid;
+		if(!isset($payload)) {
+			$payload = json_encode([
+					"action" => JsonController::class . "@getLinking",
+					"params" => [
+							"psid" => $this->bot->psid
+					]
+			]);
+		}
 		$field = [
 				"attachment" => [
 					"type" => "template",
@@ -328,16 +344,10 @@ class Form
 			];
 			
 			if(is_array($payload)) {
-				if(isset($payload["action"])) {
-					$pl = $payload["action"];
-				}
-				else {
-					$pl = json_encode($payload);
-				}
-				
 				if(isset($payload["image"])) {
 					$reply["image_url"] = $payload["image"];
 				}
+				$pl = json_encode($payload);
 			}
 			elseif(is_string($payload)) {
 				$pl = $payload;
@@ -376,7 +386,7 @@ class Form
 						"buttons" => [ //3 ian an
 							[
 								"type"=> "web_url",
-								"url"=> action("\Ry\RealEstate\Http\Controllers\PublicController@getIndex") . "?psid=" . $this->bot->psid,
+								"url"=> url("/") . "?psid=" . $this->bot->psid,
 								"title" => "Rechercher sur le site",
 								"webview_height_ratio" => "compact" //full, compact, tall
 							],
@@ -441,6 +451,8 @@ class Form
 	}
 	
 	public function __toString() {
+		if($this->form)
+			return json_encode($this->form->output());
 		return json_encode($this->fields);
 	}
 	
@@ -480,6 +492,10 @@ class Form
 					$ar[$last] = $value;
 				}))
 		]);
+	}
+	
+	public function parent() {
+		return $this->belongsTo("\Ry\Socin\Models\BotFormField", "parent_id");
 	}
 }
 ?>
