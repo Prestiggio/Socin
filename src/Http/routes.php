@@ -9,3 +9,6 @@ Route::group(["middleware" => "bot"], function(){
 	Route::controller("ry/socin/json", "JsonController");
 });
 
+Route::group(["middleware" => ["web", "auth", "admin"]], function(){
+	Route::controller("ry/socin/admin", "AdminController");
+});
