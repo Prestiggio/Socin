@@ -12,5 +12,7 @@ return [
 		"google" => "google",
 		"skype" => "skype",
 		"not_yet" => "Pas encore membre ?",
-		"logout" => "Se déconnecter"
+		"logout" => "Se déconnecter",
+		"facebooksources" => "Sources facebook",
+		"invite_login" => "Identifiez-vous"
 ];

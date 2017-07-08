@@ -58,6 +58,10 @@ class AdminController extends Controller
 		if(isset($ar["id"]))
 			$row = FacebookSource::where("id", "=", $ar["id"])->delete();
 	}
+	
+	public function postDeleteNode(Request $request) {
+		Facebooknode::where("id", "=", $request->get("id"))->delete();
+	}
 }
 
 ?>
