@@ -14,5 +14,7 @@ return [
 		"not_yet" => "Pas encore membre ?",
 		"logout" => "Se déconnecter",
 		"facebooksources" => "Sources facebook",
-		"invite_login" => "Identifiez-vous"
+		"invite_login" => "Identifiez-vous",
+		"oneclick" => "en un clic avec",
+		"or" => "ou"
 ];

@@ -14,5 +14,7 @@ return [
 		"not_yet" => "Te ho mpikambana ?",
 		"logout" => "Akatona",
 		"facebooksources" => "Sources facebook",
-		"invite_login" => "Midira ny tontolon'ny mpikambana"
+		"invite_login" => "Midira ny tontolon'ny mpikambana",
+		"oneclick" => "sioka tokana miaraka amin'i",
+		"or" => "na"
 ];

@@ -4,11 +4,11 @@
 <md-content layout="row" layout-align="center center">
 	<form class="md-whiteframe-2dp md-padding" name="frm_login" novalidate flex-lg="33" flex-md="33" ng-submit="login()">
          <div class="text-center md-headline">@lang("rysocin::auth.login")</div>
-         <div class="text-center md-subhead">en un clic avec</div>
+         <div class="text-center md-subhead">@lang("rysocin::auth.oneclick")</div>
          <div layout="row" layout-align="space-between center" layout-wrap>
          	<md-button type="button" class="md-raised md-primary" flex-md-lg flex-xs="100" ng-click="gofb()">@lang("rysocin::auth.facebook")</md-button>
          </div>
-         <div class="text-center md-subhead">ou</div>
+         <div class="text-center md-subhead">@lang("rysocin::auth.or")</div>
          <md-input-container class="md-block">
          	<label>@lang("rysocin::auth.email")</label>
          	<input type="email" name="email" ng-model="userdata.email" required>
