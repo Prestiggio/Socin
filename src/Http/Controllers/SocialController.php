@@ -50,6 +50,8 @@ class SocialController extends Controller
 	}
 	
 	public function getRegister() {
-		return Auth::user();
+		$ar = json_decode(Auth::user(), true);
+		$ar["redirect"] = Session::pull('url.intended', "/membre/dashboard" );
+		return $ar;
 	}
 }

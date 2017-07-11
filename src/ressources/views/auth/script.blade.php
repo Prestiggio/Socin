@@ -33,8 +33,8 @@ function main($scope, $http, $mdDialog, $sessionStorage, ryfb, $timeout, $locati
 		delete $sessionStorage.fb.facebookphobia;
 		ryfb.user().then(function(response){
 			$scope.loading = false;
-			document.location.href = response.redirect;
-			$scope.loading = false;
+			if(response.redirect)
+				document.location.href = response.redirect;
 		}, function(error){
 			$scope.loading = false;
 			$mdDialog.show($mdDialog.alert().clickOutsideToClose(false).title(document.location.host)

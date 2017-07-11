@@ -92,7 +92,7 @@ class BaseSocial
 			$fbconnect = $connector->connect();
 		
 			if(!$fbconnect || isset($fbconnect["error"]))
-				return view("$this->theme::login", ["redirect" => !is_null($fbconnect)]);
+				return view("$this->theme::auth.login", ["redirect" => !is_null($fbconnect)]);
 		}
 		
 		try {
