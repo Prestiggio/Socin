@@ -1,4 +1,4 @@
-<form ng-submit="reset()" name="frm_reset" class="md-padding" novalidate>
+<form ng-submit="frm_reset.$valid && reset()" name="frm_reset" class="md-padding" novalidate>
 	<md-dialog-content>
 		<div class="md-headline">@lang("rymd::auth.reset")</div>
 		<md-input-container class="md-block">

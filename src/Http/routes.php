@@ -12,3 +12,7 @@ Route::group(["middleware" => "bot"], function(){
 Route::group(["middleware" => ["web", "auth", "admin"]], function(){
 	Route::controller("ry/socin/admin", "AdminController");
 });
+
+Route::group(["middleware" => "web"], function(){
+	Route::controller("ry/socin", "PublicController");
+});
