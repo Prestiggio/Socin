@@ -5,7 +5,6 @@ use Session, Auth;
 use App\Http\Controllers\Controller;
 use Ry\Socin\Core\BaseConnector;
 use Illuminate\Filesystem\Filesystem;
-use LaravelLocalization;
 use Illuminate\Support\Facades\View;
 
 class SocialController extends Controller

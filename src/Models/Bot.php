@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 use Ry\Socin\Http\Controllers\JsonController;
 use Illuminate\Support\Facades\Log;
 use Ry\Socin\Bot\Form;
+use Illuminate\Http\Request;
 
 class Bot extends Model{		
 	
@@ -86,7 +87,13 @@ class Bot extends Model{
 			try {
 				$payload = $this->getAction($message);
 				list($controller, $action) = explode("@", $payload["action"]);
-				return app($controller)->$action($message, $payload);
+				$request = Request::create("/", "POST", [
+						"message" => $message,
+						"payload" => $payload
+				], [], [], [
+						"CONTENT_TYPE" => "application/json"
+				]);
+				return app($controller)->$action($request);
 			}
 			catch(\Exception $e) {
 				Log::error($e);

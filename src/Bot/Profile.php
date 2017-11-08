@@ -1,7 +1,7 @@
 <?php 
 namespace Ry\Socin\Bot;
 
-use LaravelLocalization, Lang, App;
+use Lang, App;
 use Ry\Socin\Bot\Menu;
 use Illuminate\Http\Request;
 use Ry\Socin\Http\JsonController;
@@ -27,52 +27,41 @@ class Profile
 	}
 	
 	public function greeting($transkey) {
-		$ar = LaravelLocalization::getSupportedLocales();
-		foreach ($ar as $d2 => $v) {
-			if($d2=="fr") {
-				$this->greetings[] = [
-								"locale" => "default",
-								"text" => Lang::get($transkey, [], $d2)
-						];
-			}
-			$this->greetings[] = [
-					"locale" => $v["regional"],
-					"text" => Lang::get($transkey, [], $d2)
-			];
-		}
+		$this->greetings[] = [
+				"locale" => "default",
+				"text" => Lang::get($transkey, [], "fr")
+		];
+		$this->greetings[] = [
+				"locale" =>"fr_FR",
+				"text" => Lang::get($transkey, [], "fr")
+		];
 	}
 	
 	public function setup() {
 		$menus = [];
-		$ar = LaravelLocalization::getSupportedLocales();		
-		foreach ($ar as $d2 => $v) {
-			$armenus = [];
-			if(count($this->menus)<=3) {
-				foreach($this->menus as $menu) {
-					$armenus[] = $menu->toArray($d2);
-				}
+		$armenus = [];
+		if(count($this->menus)<=3) {
+			foreach($this->menus as $menu) {
+				$armenus[] = $menu->toArray("fr");
 			}
-			else {
-				$ellipse = new Menu("rysocin::bot.more", ["action" => "more_menu"]);
-				$armenus[] = $this->menus[0]->toArray($d2);
-				$armenus[] = $this->menus[1]->toArray($d2);
-				$armenus[] = $ellipse->toArray($d2);
-			}
-			
-			if($d2=="fr") {
-				$menus[] = [
-						"locale" => "default",
-						"composer_input_disabled" => $this->taponly,
-						"call_to_actions" => $armenus
-				];
-			}
-			
-			$menus[] = [
-					"locale" => $v["regional"],
-					"composer_input_disabled" => $this->taponly,
-					"call_to_actions" => $armenus
-			];
 		}
+		else {
+			$ellipse = new Menu("rysocin::bot.more", ["action" => "more_menu"]);
+			$armenus[] = $this->menus[0]->toArray("fr");
+			$armenus[] = $this->menus[1]->toArray("fr");
+			$armenus[] = $ellipse->toArray("fr");
+		}
+			
+		$menus[] = [
+			"locale" => "default",
+			"composer_input_disabled" => $this->taponly,
+			"call_to_actions" => $armenus
+		];
+		$menus[] = [
+				"locale" => "fr_FR",
+				"composer_input_disabled" => $this->taponly,
+				"call_to_actions" => $armenus
+		];
 		
 		return [
 				"get_started" => [

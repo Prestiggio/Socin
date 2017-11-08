@@ -1,7 +1,7 @@
 <?php 
 namespace Ry\Socin\Bot;
 
-use LaravelLocalization, Lang, App;
+use Lang, App;
 
 class Menu
 {
