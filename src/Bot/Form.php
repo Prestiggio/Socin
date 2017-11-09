@@ -19,11 +19,16 @@ class Form
 				$save = JsonController::class . "@send";
 			
 			if(!isset($form)) {
-				$this->form = $this->bot->forms()->create([
-						"is_indexed" => isset($menu_title),
-						"name" => $name,
-						"action" => $save
-				]);
+				if(isset($name))
+					$this->form = $this->bot->forms()->where("name", "=", $name)->first();
+				
+				if(!$this->form) {
+					$this->form = $this->bot->forms()->create([
+							"is_indexed" => isset($menu_title),
+							"name" => $name,
+							"action" => $save
+					]);
+				}
 				if(!isset($menu_title))
 					$menu_title = "Feuille #" . $this->form->id;
 				$this->form->form = json_encode([
@@ -437,7 +442,7 @@ class Form
 		$this->fields[] = $field;
 	}
 	
-	public function append($field) {
+	private function append($field) {
 		if(is_array($field)) {
 			$this->save($field);
 			$this->fields[] = $field;
@@ -451,9 +456,23 @@ class Form
 	}
 	
 	public function __toString() {
-		if($this->form)
-			return json_encode($this->form->output());
-		return json_encode($this->fields);
+		/*
+		 
+		 returning Form object will always return the current field to the next expected field in the tree
+		 If there is no more field expected in the tree, it will loop in the root forms (parent null ) and get the form unfilled and loop until expected field in this form
+		 
+		 and so on
+		 
+		 * */
+		
+		try {
+			if($this->form)
+				return json_encode($this->form->output());
+			return json_encode($this->fields);
+		}
+		catch(\Exception $e) {
+			return $e->getMessage();
+		}
 	}
 	
 	public function getFields() {

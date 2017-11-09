@@ -9,7 +9,7 @@ class BotForm extends Model
 {
 	protected $table = "ry_socin_botforms";
 	
-	protected $fillable = ["action", "form", "is_indexed"];
+	protected $fillable = ["action", "form", "is_indexed", "name"];
 	
 	public function owner() {
 		return $this->belongsTo("Ry\Socin\Models\Bot", "bot_id");

@@ -4,6 +4,8 @@ namespace Ry\Socin\Models;
 use Illuminate\Database\Eloquent\Model;
 use Ry\Socin\Bot\Form;
 use Ry\Socin\Models\Bot;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class BotFormField extends Model
 {
@@ -15,27 +17,26 @@ class BotFormField extends Model
 		return $this->belongsTo("\Ry\Socin\Models\BotForm", "form_id");
 	}
 	
-	public function handle($message, $payload) {
+	public function handle($request) {
 		$server_output = json_decode($this->server_output, true);
 		try {
 			list($controller, $method) = explode("@", $server_output["expect"]);
-			$ret = app($controller)->$method($message, $payload);
-			if(isset($ret["value"])) {
-				$value = $ret["value"];
+			$form = app($controller)->$method($request);
+			if(isset($form->value)) {
+				$value = $form->value;
 				$model = $server_output["model"];
 				$keys = explode(".", $model);
 				$key = array_pop($keys);
 				$model = implode(".", $keys);
 				Bot::gotField(Form::dot2ar($model, function(&$ar) use ($key, $value){
 					$ar[$key] = $value;
-				}), $ret["form"]);
-				return $ret["form"];
+				}), $form);
 			}
+			return $form;
 		}
 		catch(\Exception $exception) {
-			
+			Log::error($exception);
 		}
-		return [];
 	}
 }
 ?>

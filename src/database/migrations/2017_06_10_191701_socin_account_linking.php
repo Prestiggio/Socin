@@ -14,6 +14,7 @@ class SocinAccountLinking extends Migration
     {
         Schema::table('ry_socin_bots', function (Blueprint $table) {
             $table->text("account_linking_token")->after("psid")->nullable();
+            $table->integer("lock_field_id", false, true)->nullable();
         });
     }
 

@@ -78,21 +78,15 @@ class Bot extends Model{
 		}
 	}
 	
-	public function next($message) {
-		Log::info($message);
+	public function next($request) {
 		if($this->field) {
-			return array_merge($this->field->handle($message, []), $this->field->form->output());
+			return $this->field->handle($request);
 		}
 		else {
+			$message = $request->all();
 			try {
 				$payload = $this->getAction($message);
 				list($controller, $action) = explode("@", $payload["action"]);
-				$request = Request::create("/", "POST", [
-						"message" => $message,
-						"payload" => $payload
-				], [], [], [
-						"CONTENT_TYPE" => "application/json"
-				]);
 				return app($controller)->$action($request);
 			}
 			catch(\Exception $e) {
