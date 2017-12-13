@@ -6,6 +6,7 @@ use Ry\Socin\Http\Controllers\JsonController;
 use Illuminate\Support\Facades\Log;
 use Ry\Socin\Bot\Form;
 use Illuminate\Http\Request;
+use App\Http\Controllers\BotController;
 
 class Bot extends Model{		
 	
@@ -56,6 +57,7 @@ class Bot extends Model{
 	private function getAction($message) {
 		if(isset($message["postback"]["payload"])) {
 			try {
+				return BotController::class . "@postStart";
 				return json_decode($message["postback"]["payload"], true);
 			}
 			catch(\Exception $e) {
@@ -100,13 +102,12 @@ class Bot extends Model{
 	private function index($message) {
 		$form = $this->forms()->where("name", "=", "index")->first();
 		if(!$form) {
-			$f = new Form("Accueil", null, true, "index");
-			$f->select("Que veux-tu faire " . self::$bot->first_name . "?", [
+			$form = new Form("Accueil", null, true, "index");
+			$form->select("Que veux-tu faire " . self::$bot->first_name . "?", [
 					"Retour au menu" => JsonController::class . "@listForms"
 			]);
-			$form = $f->getForm();
 		}
-		return $form->output();
+		return $form;
 	}
 	
 	public static function gotField($value) {

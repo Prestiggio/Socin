@@ -5,8 +5,9 @@ use Lang, App;
 
 use Ry\Socin\Models\Bot;
 use Ry\Socin\Http\Controllers\JsonController;
+use Illuminate\Contracts\Support\Jsonable;
 
-class Form
+class Form implements Jsonable
 {
 	private $fields = [];
 	private $bot, $form;
@@ -83,7 +84,6 @@ class Form
 			$field["attachment"]["payload"] = ["url" => $path];
 		else
 			$field["filedata"] = $path;
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -98,7 +98,6 @@ class Form
 			$field["attachment"]["payload"] = ["url" => $path];
 		else
 			$field["filedata"] = $path;
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -113,7 +112,6 @@ class Form
 			$field["attachment"]["payload"] = ["url" => $path];
 		else
 			$field["filedata"] = $path;
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -128,7 +126,6 @@ class Form
 			$field["attachment"]["payload"] = ["url" => $path];
 		else
 			$field["filedata"] = $path;
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -137,7 +134,6 @@ class Form
 				"expect" => $action,
 				"model" => $model
 		];
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -191,14 +187,11 @@ class Form
 						]
 				]
 		];
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
 	public function info($textMessage) {
-		$field = ["text" => strlen($textMessage)>640 ? substr($textMessage, 0, 637)."..."  : $textMessage];
-		$this->save($field);
-		$this->fields[] = $field;
+		$this->fields[] = ["text" => strlen($textMessage)>640 ? substr($textMessage, 0, 637)."..."  : $textMessage];
 	}
 	
 	public function link($invitationMessage, $payload=null) {
@@ -225,7 +218,6 @@ class Form
 					]
 				]
 		];
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -267,7 +259,6 @@ class Form
 						]
 				]
 		];
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -335,8 +326,6 @@ class Form
 				]
 			]
 		];
-		
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -373,8 +362,6 @@ class Form
 			"text" => $title,
 			"quick_replies" => $replies
 		];
-		
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
@@ -437,14 +424,11 @@ class Form
 				]
 			]
 		];
-		
-		$this->save($field);
 		$this->fields[] = $field;
 	}
 	
 	private function append($field) {
 		if(is_array($field)) {
-			$this->save($field);
 			$this->fields[] = $field;
 		}
 		elseif($field instanceof Form) {
@@ -452,26 +436,6 @@ class Form
 			foreach ($fields as $f) {
 				$this->fields[] = $f;
 			}
-		}
-	}
-	
-	public function __toString() {
-		/*
-		 
-		 returning Form object will always return the current field to the next expected field in the tree
-		 If there is no more field expected in the tree, it will loop in the root forms (parent null ) and get the form unfilled and loop until expected field in this form
-		 
-		 and so on
-		 
-		 * */
-		
-		try {
-			if($this->form)
-				return json_encode($this->form->output());
-			return json_encode($this->fields);
-		}
-		catch(\Exception $e) {
-			return $e->getMessage();
 		}
 	}
 	
@@ -515,6 +479,31 @@ class Form
 	
 	public function parent() {
 		return $this->belongsTo("\Ry\Socin\Models\BotFormField", "parent_id");
+	}
+	
+	public function toJson($options = 0) {
+		if($this->form && !$this->form->id) {
+			foreach($this->fields as $field) {
+				$this->save($field);
+			}
+		}
+		/*
+		 	
+		returning Form object will always return the current field to the next expected field in the tree
+		If there is no more field expected in the tree, it will loop in the root forms (parent null ) and get the form unfilled and loop until expected field in this form
+			
+		and so on
+			
+		* */
+		
+		try {
+			if($this->form)
+				return json_encode($this->form->output(), $options);
+			return json_encode($this->fields, $options);
+		}
+		catch(\Exception $e) {
+			return json_encode(["error" => $e->getMessage()], $options);
+		}
 	}
 }
 ?>
