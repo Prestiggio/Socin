@@ -14,7 +14,8 @@
         }
     },
     "require": {
-    	"ry/md":"dev-master"
+        "ry/md":"dev-master",
+        "facebook/graph-sdk": "*"
     },
     "repositories": [{
 		    "type": "vcs",
