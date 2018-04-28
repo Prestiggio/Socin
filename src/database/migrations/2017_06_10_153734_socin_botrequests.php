@@ -14,7 +14,7 @@ class SocinBotrequests extends Migration
     {
         Schema::create('ry_socin_botrequests', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("bot_id");
+            $table->integer("bot_id", false, true);
             $table->text("payload");
             $table->char("handler")->nullable();
             $table->integer("priority")->nullable();

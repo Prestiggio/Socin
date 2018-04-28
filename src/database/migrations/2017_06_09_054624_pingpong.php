@@ -13,7 +13,7 @@ class Pingpong extends Migration
     public function up()
     {
         Schema::table('ry_socin_bots', function (Blueprint $table) {
-            $table->integer("botrequest_id")->after("psid")->nullable();
+            $table->integer("botrequest_id", false, true)->after("psid")->nullable();
         });
     }
 
