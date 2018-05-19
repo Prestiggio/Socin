@@ -74,9 +74,10 @@ class BaseTokenHandler
 			Facebookuser::reguard();
 		}
 		
+		$appname = $this->app("facebook")->getApp()->getId();
 		Facebookusersession::unguard();
 		$fbuser->sessions()->create([
-			"appname" => $this->app("facebook")->getApp()->getId()
+			"appname" => $appname
 		]);
 		Facebookusersession::reguard();
 	

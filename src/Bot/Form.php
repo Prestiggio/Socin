@@ -4,6 +4,8 @@ namespace Ry\Socin\Bot;
 use Lang, App;
 
 use Ry\Socin\Models\Bot;
+use Ry\Socin\Models\BotForm;
+use Ry\Socin\Models\BotFormField;
 use Ry\Socin\Http\Controllers\JsonController;
 use Illuminate\Contracts\Support\Jsonable;
 
@@ -24,11 +26,13 @@ class Form implements Jsonable
 					$this->form = $this->bot->forms()->where("name", "=", $name)->first();
 				
 				if(!$this->form) {
+					BotForm::unguard();
 					$this->form = $this->bot->forms()->create([
 							"is_indexed" => isset($menu_title),
 							"name" => $name,
 							"action" => $save
 					]);
+					BotForm::reguard();
 				}
 				if(!isset($menu_title))
 					$menu_title = "Feuille #" . $this->form->id;
@@ -61,9 +65,11 @@ class Form implements Jsonable
 			if(isset($field["expect"]) && $field["expect"]=="")
 				return;
 			
+			BotFormField::unguard();
 			$f = $this->form->fields()->create([
 				"server_output" => json_encode($field)
 			]);
+			BotFormField::reguard();
 			
 			if(isset($field["expect"]) && $field["expect"]!="") {
 				//$field["expect"] = $field["expect"] . (preg_match("/\?/i", $field["expect"]) ? "&" : "?") . "field_id=" . $f->id;
@@ -470,11 +476,13 @@ class Form implements Jsonable
 	public function set($dotNotation, $value) {
 		$keys = explode(".", $dotNotation);
 		$last = array_pop($keys);
+		BotFormField::unguard();
 		$this->form->fields()->create([
 				"value" => json_encode(self::dot2ar(implode(".", $keys), function(&$ar) use ($last, $value){
 					$ar[$last] = $value;
 				}))
 		]);
+		BotFormField::reguard();
 	}
 	
 	public function parent() {

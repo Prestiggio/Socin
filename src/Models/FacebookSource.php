@@ -8,7 +8,7 @@ class FacebookSource extends Model
 {
     protected $table = "ry_socin_facebook_sources";
     
-    protected $with = ["editor"];
+    //protected $with = ["editor"];
     
     public function editor() {
     	return $this->belongsTo("App\User", "editor_id");

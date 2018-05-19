@@ -33,7 +33,6 @@ class AdminController extends Controller
 		
 		$user = Auth::user();
 		
-		Model::unguard();
 		$data = [
 			"editor_id" => $user->id,
 			"name" => $ar["name"],
@@ -46,12 +45,12 @@ class AdminController extends Controller
 		if(isset($ar["id"]))
 			$row = FacebookSource::where("id", "=", $ar["id"])->first();
 		
+		FacebookSource::unguard();
 		if(!$row)
 			$row = FacebookSource::create($data);
 		else
 			$row->update($data);
-		
-		Model::reguard();
+		FacebookSource::reguard();
 	}
 	
 	public function postDelete(Request $request) {

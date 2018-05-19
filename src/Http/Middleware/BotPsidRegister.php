@@ -21,9 +21,11 @@ class BotPsidRegister
     	if(isset($ar["sender"]["id"])) {
     		$bot = Bot::where("psid", "=", $ar["sender"]["id"])->first();
     		if(!$bot) {
+				Bot::unguard();
     			$bot = Bot::create([
     					"psid" => $ar["sender"]["id"]
-    			]);
+				]);
+				Bot::reguard();
     		}
     		Bot::setCurrent($bot);
     	}

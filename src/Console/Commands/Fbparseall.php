@@ -50,8 +50,6 @@ class Fbparseall extends Command
     	
     	$sources = FacebookSource::all();
     	
-    	Model::unguard();
-    	
     	foreach($sources as $source) {
     		$products = $fb->get($source->endpoint, $source->access_token)->getGraphEdge();
     		$ar = $products->all();
@@ -88,7 +86,7 @@ class Fbparseall extends Command
     		}
     	}
     	
-    	Model::reguard();
+    	
 		//$products = $fb->get("/1700007833570971/feed?fields=id,from,message,full_picture,picture,comments{comment_count,message,message_tags},attachments{subattachments},created_time&limit=5", env("ry_media_token"))->getGraphEdge();
     }
     /*
