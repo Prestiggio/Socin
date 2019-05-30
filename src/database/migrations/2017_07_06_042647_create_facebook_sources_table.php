@@ -14,16 +14,12 @@ class CreateFacebookSourcesTable extends Migration
     {
         Schema::create('ry_socin_facebook_sources', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("editor_id", false, true);
+            $table->unsignedBigInteger("editor_id");
             $table->char("name", 50);
             $table->char("url");
             $table->text("endpoint");
             $table->text("access_token");
             $table->timestamps();
-            
-            $table->foreign("editor_id")->references("id")->on("users");
-            $table->unique("name");
-            $table->unique("url");
         });
     }
 

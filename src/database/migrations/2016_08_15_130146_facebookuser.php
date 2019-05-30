@@ -14,7 +14,7 @@ class Facebookuser extends Migration
     {
         Schema::create('ry_socin_facebookusers', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("user_id", false, true)->nullable();
+            $table->unsignedBigInteger("user_id")->nullable();
             $table->char("fbid")->nullable();
             $table->char("access_token");    
             $table->char("fbusername")->nullable();
