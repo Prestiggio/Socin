@@ -14,11 +14,7 @@
         }
     },
     "require": {
-        "ry/md":"dev-master",
+        "prestiggio/md":"dev-master",
         "facebook/graph-sdk": "*"
-    },
-    "repositories": [{
-		    "type": "vcs",
-		    "url": "git@topmora.com:/opt/git/modules/ry/md.git"
-	}]
+    }
 }
